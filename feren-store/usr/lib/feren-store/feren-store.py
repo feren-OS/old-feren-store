@@ -35,7 +35,7 @@ DETAILS_ICON_SIZE = 64
 SCREEN_THUMB_WIDTH = 100
 SCREENSHOT_WIDTH = 625
 
-FALLBACK_PACKAGE_ICON_PATH = "/usr/share/linuxmint/mintinstall/data/available.png"
+FALLBACK_PACKAGE_ICON_PATH = "/usr/share/feren-store/data/available.png"
 
 #Hardcoded mouse back button key for button-press-event
 #May not work on all mice
@@ -47,13 +47,13 @@ SEARCH_IN_DESCRIPTION = "search-in-description"
 INSTALLED_APPS = "installed-apps"
 SEARCH_IN_CATEGORY = "search-in-category"
 
-# Don't let mintinstall run as root
+# Don't let feren-store run as root
 if os.getuid() == 0:
     print("The software manager should not be run as root. Please run it in user mode.")
     sys.exit(1)
 
 # i18n
-APP = 'mintinstall'
+APP = 'feren-store'
 LOCALE_DIR = "/usr/share/linuxmint/locale"
 locale.bindtextdomain(APP, LOCALE_DIR)
 gettext.bindtextdomain(APP, LOCALE_DIR)
@@ -61,32 +61,44 @@ gettext.textdomain(APP)
 _ = gettext.gettext
 
 import setproctitle
-setproctitle.setproctitle("mintinstall")
+setproctitle.setproctitle("feren-store")
 
-SCREENSHOT_DIR = os.path.join(GLib.get_user_cache_dir(), "mintinstall", "screenshots")
+SCREENSHOT_DIR = os.path.join(GLib.get_user_cache_dir(), "feren-store", "screenshots")
 
 # List of aliases
 ALIASES = {}
 ALIASES['spotify-client'] = "Spotify"
 ALIASES['steam-launcher'] = "Steam"
-ALIASES['minecraft-launcher'] = "Minecraft"
-ALIASES['virtualbox-qt'] = "Virtualbox " # Added a space to force alias
-ALIASES['virtualbox'] = "Virtualbox (base)"
-ALIASES['sublime-text'] = "Sublime"
+ALIASES['minecraft-installer'] = "Minecraft"
+ALIASES['virtualbox-qt'] = "VirtualBox 5" # 5 to indicate older version
+ALIASES['virtualbox'] = "VirtualBox 5 (base)"
+ALIASES['virtualbox-feren'] = "VirtualBox" # 6 is the latest version, so no need for a number
+ALIASES['sublime-text'] = "Sublime Text"
 ALIASES['mint-meta-codecs'] = _("Multimedia Codecs")
-ALIASES['mint-meta-codecs-kde'] = _("Multimedia Codecs for KDE")
 ALIASES['mint-meta-debian-codecs'] = _("Multimedia Codecs")
 ALIASES['firefox'] = "Firefox"
 ALIASES['vlc'] = "VLC"
-ALIASES['mpv'] = "Mpv"
-ALIASES['gimp'] = "Gimp"
+ALIASES['gimp'] = "GIMP"
 ALIASES['gnome-maps'] = "GNOME Maps"
-ALIASES['thunderbird'] = "Thunderbird"
-ALIASES['pia-manager'] = "PIA Manager"
 ALIASES['skypeforlinux'] = "Skype"
 ALIASES['google-earth-pro-stable'] = "Google Earth"
 ALIASES['whatsapp-desktop'] = "WhatsApp"
-ALIASES['wine-installer'] = "Wine"
+ALIASES['google-chrome-stable'] = "Google Chrome"
+ALIASES['vivaldi-stable'] = "Vivaldi"
+ALIASES['winehq-stable'] = "Wine"
+ALIASES['wine'] = "Wine (Older Version)"
+ALIASES['feren-themer-cinnamon'] = "Themer (Cinnamon Extension)"
+ALIASES['feren-themer-kde'] = "Feren OS Global Theme Expansions"
+ALIASES['feren-transfer-tool'] = "Transfer Tool"
+ALIASES['feren-games-pack'] = "Games Pack"
+ALIASES['feren-icon-patches'] = "Patches for Application Shortcuts"
+ALIASES['feren-maintenance'] = "Feren OS Maintenance Tool"
+ALIASES['mintinstall'] = "Mint Software Manager"
+ALIASES['feren-store'] = "Feren Store"
+ALIASES['pantheon-photos'] = "Photos"
+ALIASES['chromium-browser'] = "Chromium"
+
+packageblacklist=['google-chrome-beta', 'google-chrome-unstable']
 
 class AsyncImage(Gtk.Image):
     def __init__(self, icon_string=None, width=DETAILS_ICON_SIZE, height=DETAILS_ICON_SIZE):
@@ -198,22 +210,6 @@ class ScreenshotDownloader(threading.Thread):
         self.application.screenshots = []
         # Add main screenshot
         try:
-            thumb = "https://community.linuxmint.com/thumbnail.php?w=250&pic=/var/www/community.linuxmint.com/img/screenshots/%s.png" % self.pkginfo.name
-            link = "https://community.linuxmint.com/img/screenshots/%s.png" % self.pkginfo.name
-            if requests.head(link).status_code < 400:
-                num_screenshots += 1
-
-                local_name = os.path.join(SCREENSHOT_DIR, "%s_%s.png" % (self.pkginfo.name, num_screenshots))
-                local_thumb = os.path.join(SCREENSHOT_DIR, "thumb_%s_%s.png" % (self.pkginfo.name, num_screenshots))
-
-                self.save_to_file(link, local_name)
-                self.save_to_file(thumb, local_thumb)
-
-                self.application.add_screenshot(self.pkginfo.name, num_screenshots)
-        except Exception as e:
-            print(e)
-
-        try:
             # Add additional screenshots from Debian
             from bs4 import BeautifulSoup
             page = BeautifulSoup(urllib.request.urlopen("http://screenshots.debian.net/package/%s" % self.pkginfo.name), "lxml")
@@ -256,6 +252,22 @@ class ScreenshotDownloader(threading.Thread):
                         self.application.add_screenshot(self.pkginfo.name, num_screenshots)
         except Exception as e:
             print(e)
+            
+        try:
+            thumb = "https://community.linuxmint.com/thumbnail.php?w=250&pic=/var/www/community.linuxmint.com/img/screenshots/%s.png" % self.pkginfo.name
+            link = "https://community.linuxmint.com/img/screenshots/%s.png" % self.pkginfo.name
+            if requests.head(link).status_code < 400:
+                num_screenshots += 1
+
+                local_name = os.path.join(SCREENSHOT_DIR, "%s_%s.png" % (self.pkginfo.name, num_screenshots))
+                local_thumb = os.path.join(SCREENSHOT_DIR, "thumb_%s_%s.png" % (self.pkginfo.name, num_screenshots))
+
+                self.save_to_file(link, local_name)
+                self.save_to_file(thumb, local_thumb)
+
+                self.application.add_screenshot(self.pkginfo.name, num_screenshots)
+        except Exception as e:
+            print(e)
 
     def save_to_file(self, url, path):
         r = requests.get(url, stream=True)
@@ -288,15 +300,15 @@ class FeatureTile(Gtk.Button):
 #FeatureTitle {
     color: %(color)s;
     text-shadow: %(text_shadow)s;
-    font-weight: bold;
-    font-size: 24px;
+    font-weight: normal;
+    font-size: 36px;
 }
 
 #FeatureSummary {
     color: %(color)s;
     text-shadow: %(text_shadow)s;
-    font-weight: bold;
-    font-size: 12px;
+    font-weight: normal;
+    font-size: 14px;
 }
 """ % {'background':background, 'color':color, 'text_shadow':text_shadow, 'border_color':border_color}
 
@@ -318,13 +330,15 @@ class FeatureTile(Gtk.Button):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         vbox.set_border_width(6)
 
-        vbox.pack_start(Gtk.Label(), False, False, 30)
+        vbox.pack_start(Gtk.Label(), False, False, 8)
         vbox.pack_start(label_name, False, False, 0)
+        vbox.pack_start(Gtk.Label(), False, False, 0)
         vbox.pack_start(label_summary, True, True, 0)
+        vbox.pack_start(Gtk.Label(), False, False, 8)
 
         hbox = Gtk.Box()
         label_left = Gtk.Label()
-        hbox.pack_start(label_left, True, True, 200)
+        hbox.pack_start(label_left, True, True, 44)
         hbox.pack_start(vbox, True, True, 0)
 
         self.add(hbox)
@@ -529,7 +543,7 @@ class Application(Gtk.Application):
     PAGE_SEARCHING = "searching"
 
     def __init__(self):
-        super(Application, self).__init__(application_id='com.linuxmint.mintinstall',
+        super(Application, self).__init__(application_id='org.feren.feren-store',
                                           flags=Gio.ApplicationFlags.HANDLES_OPEN | Gio.ApplicationFlags.HANDLES_COMMAND_LINE)
 
         self.gui_ready = False
@@ -539,7 +553,7 @@ class Application(Gtk.Application):
         self.settings = Gio.Settings("com.linuxmint.install")
         self.arch = platform.machine()
 
-        print("MintInstall: Detected system architecture: '%s'" % self.arch)
+        print("Feren Store: Detected system architecture: '%s'" % self.arch)
 
         self.locale = os.getenv('LANGUAGE')
         if self.locale is None:
@@ -605,10 +619,10 @@ class Application(Gtk.Application):
                     self.activate()
                     return 0
 
-            print("MintInstall: file not found", args[2])
+            print("Feren Store: file not found", args[2])
             sys.exit(1)
         elif num > 1:
-            print("MintInstall: Unknown arguments", args[1:])
+            print("Feren Store: Unknown arguments", args[1:])
             sys.exit(1)
 
         self.activate()
@@ -706,32 +720,32 @@ class Application(Gtk.Application):
         # If it's less than our threshold than consider us 'low res'. The workarea being used is in
         # app pixels, so hidpi will also be affected here regardless of device resolution.
         if height < 768:
-            print("MintInstall: low resolution detected on monitor %d (%dpx height), limiting window height." % (monitor_number, height))
+            print("Feren Store: low resolution detected on monitor %d (%dpx height), limiting window height." % (monitor_number, height))
             return True
 
         return False
 
     def create_window(self, starting_page):
         if self.main_window != None:
-            print("MintInstall: create_window called, but we already had one!")
+            print("Feren Store: create_window called, but we already had one!")
             return
 
         # Build the GUI
-        glade_file = "/usr/share/linuxmint/mintinstall/mintinstall.glade"
+        glade_file = "/usr/share/feren-store/feren-store.glade"
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(APP)
         self.builder.add_from_file(glade_file)
 
         self.main_window = self.builder.get_object("main_window")
-        self.main_window.set_title(_("Software Manager"))
-        self.main_window.set_icon_name("mintinstall")
+        self.main_window.set_title(_("Store"))
+        self.main_window.set_icon_name("softwarecenter")
         self.main_window.connect("delete_event", self.close_application)
         self.main_window.connect("key-press-event", self.on_keypress)
         self.main_window.connect("button-press-event", self.on_buttonpress)
 
         theme = Gtk.IconTheme.get_default()
-        for icon_name in ["application-x-deb", "file-roller"]:
+        for icon_name in ["store-missing-icon", "application-x-deb"]:
             if theme.has_icon(icon_name):
                 iconInfo = theme.lookup_icon_for_scale(icon_name,
                                                        LIST_ICON_SIZE,
@@ -929,7 +943,7 @@ class Application(Gtk.Application):
         flowbox.connect("child-activated", self.on_flowbox_child_activated, self.PAGE_LANDING)
 
         featured = []
-        with open("/usr/share/linuxmint/mintinstall/featured/featured.list", 'r') as f:
+        with open("/usr/share/feren-store/featured/featured.list", 'r') as f:
             for line in f:
                 if line.startswith("#") or len(line.strip()) == 0:
                     continue
@@ -943,7 +957,7 @@ class Application(Gtk.Application):
         while True:
             selected = random.sample(featured, 1)[0]
             (name, background, stroke, text, text_shadow) = selected.split('----')
-            background = background.replace("@prefix@", "/usr/share/linuxmint/mintinstall/featured/")
+            background = background.replace("@prefix@", "/usr/share/feren-store/featured/")
 
             pkginfo = self.installer.cache.find_pkginfo(name, 'a')
 
@@ -1114,7 +1128,6 @@ class Application(Gtk.Application):
                 self.show_package(self.current_pkginfo, self.previous_page)
             else:
                 del self.installer.cache[pkginfo.pkg_hash]
-                self.previous_page = self.PAGE_LANDING
                 self.go_back_action()
 
         for tile in (self.picks_tiles + self.category_tiles):
@@ -1288,8 +1301,8 @@ class Application(Gtk.Application):
         dlg = Gtk.AboutDialog()
         dlg.set_transient_for(self.main_window)
         dlg.set_title(_("About"))
-        dlg.set_program_name("mintinstall")
-        dlg.set_comments(_("Software Manager"))
+        dlg.set_program_name("Store")
+        dlg.set_comments(_("A utility for Feren OS for installing and removing applications"))
         try:
             h = open('/usr/share/common-licenses/GPL', 'r')
             s = h.readlines()
@@ -1301,9 +1314,9 @@ class Application(Gtk.Application):
         except Exception as e:
             print(e)
 
-        dlg.set_version("8.0.3")
-        dlg.set_icon_name("mintinstall")
-        dlg.set_logo_icon_name("mintinstall")
+        dlg.set_version("2019.11.0.0.0")
+        dlg.set_icon_name("softwarecenter")
+        dlg.set_logo_icon_name("softwarecenter")
 
         def close(w, res):
             if res == Gtk.ResponseType.CANCEL or res == Gtk.ResponseType.DELETE_EVENT:
@@ -1325,7 +1338,7 @@ class Application(Gtk.Application):
 
         self.installer = installer.Installer()
 
-        from mintcommon.installer import cache
+        from installer import cache
 
         self.installer.cache = cache.PkgCache(self.installer.have_flatpak)
         self.installer.force_new_cache()
@@ -1351,11 +1364,7 @@ class Application(Gtk.Application):
             description = description.replace("\n", "<br>")
 
             summary = self.installer.get_summary(pkginfo)
-            url = ""
-            try:
-                url = self.installer.get_url(pkginfo)
-            except:
-                pass
+            url = self.installer.get_url(pkginfo)
 
             categories = []
             for category in pkginfo.categories:
@@ -1443,10 +1452,7 @@ class Application(Gtk.Application):
                 edition = config['EDITION']
         except:
             pass
-        if "KDE" in edition:
-            self.picks_category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/picks-kde.list")
-        else:
-            self.picks_category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/picks.list")
+        self.picks_category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/picks.list")
 
         self.flatpak_category = Category("Flatpak", None, self.categories)
 
@@ -1456,23 +1462,23 @@ class Application(Gtk.Application):
         subcat = Category(_("Web"), category, self.categories)
         self.sections["web"] = subcat
         self.sections["net"] = subcat
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/internet-web.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/internet-web.list")
 
         subcat = Category(_("Email"), category, self.categories)
         self.sections["mail"] = subcat
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/internet-email.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/internet-email.list")
 
         subcat = Category(_("Chat"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/internet-chat.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/internet-chat.list")
 
         subcat = Category(_("File sharing"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/internet-filesharing.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/internet-filesharing.list")
 
         self.root_categories[category.name] = category
 
         # SOUND AND VIDEO
         category = Category(_("Sound and video"), None, self.categories)
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/sound-video.list")
+        category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/sound-video.list")
         subcat = Category(_("Sound"), category, self.categories)
         self.sections["sound"] = subcat
         subcat = Category(_("Video"), category, self.categories)
@@ -1482,20 +1488,20 @@ class Application(Gtk.Application):
         # GRAPHICS
         category = Category(_("Graphics"), None, self.categories)
         self.sections["graphics"] = category
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics.list")
+        category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics.list")
 
         subcat = Category(_("3D"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-3d.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-3d.list")
         subcat = Category(_("Drawing"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-drawing.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-drawing.list")
         subcat = Category(_("Photography"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-photography.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-photography.list")
         subcat = Category(_("Publishing"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-publishing.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-publishing.list")
         subcat = Category(_("Scanning"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-scanning.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-scanning.list")
         subcat = Category(_("Viewers"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/graphics-viewers.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/graphics-viewers.list")
         self.root_categories[category.name] = category
 
         # OFFICE
@@ -1507,20 +1513,20 @@ class Application(Gtk.Application):
         # GAMES
         category = Category(_("Games"), None, self.categories)
         self.sections["games"] = category
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games.list")
+        category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games.list")
 
         subcat = Category(_("Board games"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-board.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-board.list")
         subcat = Category(_("First-person"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-fps.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-fps.list")
         subcat = Category(_("Real-time strategy"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-rts.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-rts.list")
         subcat = Category(_("Turn-based strategy"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-tbs.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-tbs.list")
         subcat = Category(_("Emulators"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-emulators.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-emulators.list")
         subcat = Category(_("Simulation and racing"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/games-simulations.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/games-simulations.list")
         self.root_categories[category.name] = category
 
         # ACCESSORIES
@@ -1533,13 +1539,7 @@ class Application(Gtk.Application):
         category = Category(_("System tools"), None, self.categories)
         self.sections["system"] = category
         self.sections["admin"] = category
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/system-tools.list")
-        self.root_categories[category.name] = category
-
-        # FONTS
-        category = Category(_("Fonts"), None, self.categories)
-        self.sections["fonts"] = category
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/fonts.list")
+        category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/system-tools.list")
         self.root_categories[category.name] = category
 
         # EDUCATION
@@ -1552,7 +1552,7 @@ class Application(Gtk.Application):
         self.sections["education"] = subcat
         subcat = Category(_("Electronics"), category, self.categories)
         self.sections["electronics"] = subcat
-        category.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/education.list")
+        category.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/education.list")
         self.root_categories[category.name] = category
 
         # PROGRAMMING
@@ -1565,7 +1565,24 @@ class Application(Gtk.Application):
         subcat = Category(_("Python"), category, self.categories)
         self.sections["python"] = subcat
         subcat = Category(_("Essentials"), category, self.categories)
-        subcat.matchingPackages = self.file_to_array("/usr/share/linuxmint/mintinstall/categories/development-essentials.list")
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/development-essentials.list")
+        self.root_categories[category.name] = category
+        
+        # CUSTOMISATION
+        category = Category(_("Customisation"), None, self.categories)
+        self.sections["customisation"] = category
+        if os.environ["XDG_CURRENT_DESKTOP"] == "X-Cinnamon":
+            subcat = Category(_("Themes"), category, self.categories)
+            subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/customisation-themer.list")
+        subcat = Category(_("Theme Parts"), category, self.categories)
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/customisation-themeparts.list")
+        subcat = Category(_("Backgrounds"), category, self.categories)
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/customisation-backgrounds.list")
+        subcat = Category(_("Theme Colourisers"), category, self.categories)
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/customisation-themecolourisers.list")
+        subcat = Category(_("Fonts"), category, self.categories)
+        self.sections["fonts"] = category
+        subcat.matchingPackages = self.file_to_array("/usr/share/feren-store/categories/fonts.list")
         self.root_categories[category.name] = category
 
     def add_pkginfo_to_category(self, pkginfo, category):
@@ -1982,17 +1999,27 @@ class Application(Gtk.Application):
         collisions = []
 
         bad_ones = []
+        newpkginfos = pkginfos
         for pkginfo in pkginfos:
             try:
                 title = self.installer.get_display_name(pkginfo).lower()
-                if title in package_titles and title not in collisions:
-                    collisions.append(title)
-                package_titles.append(title)
+                if not title in packageblacklist:
+                    if title in package_titles and title not in collisions:
+                        collisions.append(title)
+                    if pkginfo.pkg_hash.startswith("f"):
+                        package_titles.append(title+" (Flatpak)")
+                    else:
+                        package_titles.append(title)
+                else:
+                    newpkginfos.remove(pkginfo)
             except:
                 bad_ones.append(pkginfo)
+                
+        pkginfos = newpkginfos
 
         for bad in bad_ones:
-            pkginfos.remove(bad)
+            if bad in pkginfos:
+                pkginfos.remove(bad)            
 
         self.one_package_idle_timer = GObject.idle_add(self.idle_show_one_package,
                                                        pkginfos,
@@ -2075,16 +2102,16 @@ class Application(Gtk.Application):
 
         details_i18n = _("Details")
 
-        if pkginfo.pkg_hash.startswith("f"):
-            details_markup = "<big><b>%s (Flatpak)</b></big>" % details_i18n
-        else:
-            details_markup = "<big><b>%s</b></big>" % details_i18n
+        details_markup = "<big><b>%s</b></big>" % details_i18n
 
         self.builder.get_object("label_details").set_markup(details_markup)
 
         icon_string = self.get_application_icon_string(pkginfo, DETAILS_ICON_SIZE)
         self.detail_view_icon.set_icon_string(icon_string)
-        self.builder.get_object("application_name").set_label(self.installer.get_display_name(pkginfo))
+        if pkginfo.pkg_hash.startswith("f"):
+            self.builder.get_object("application_name").set_label(self.installer.get_display_name(pkginfo)+" (Flatpak)")
+        else:
+            self.builder.get_object("application_name").set_label(self.installer.get_display_name(pkginfo))
         self.builder.get_object("application_summary").set_label(self.installer.get_summary(pkginfo))
         self.builder.get_object("application_package").set_label(pkginfo.name)
 
@@ -2093,10 +2120,7 @@ class Application(Gtk.Application):
         app_description.set_label(description)
         app_description.set_line_wrap(True)
 
-        try:
-            homepage = self.installer.get_url(pkginfo)
-        except:
-            homepage = None
+        homepage = self.installer.get_url(pkginfo)
         if homepage is not None and homepage != "":
             self.builder.get_object("website_link").show()
             self.builder.get_object("website_link").set_markup("<a href='%s'>%s</a>" % (homepage, homepage))

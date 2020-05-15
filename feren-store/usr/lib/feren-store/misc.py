@@ -3,7 +3,7 @@
 import os
 import time
 
-DEBUG_MODE = os.getenv("MINTINSTALL_DEBUG", False)
+DEBUG_MODE = os.getenv("FERENSTORE_DEBUG", False)
 
 # Used as a decorator to time functions
 def print_timing(func):
@@ -21,4 +21,4 @@ def print_timing(func):
 def debug(str):
     if not DEBUG_MODE:
         return
-    print("Mintinstall (DEBUG): %s" % str)
+    print("Feren Store (DEBUG): %s" % str)

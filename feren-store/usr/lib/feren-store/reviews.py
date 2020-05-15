@@ -10,7 +10,7 @@ from gi.repository import GLib
 
 from misc import print_timing
 
-REVIEWS_CACHE = os.path.join(GLib.get_user_cache_dir(), "mintinstall", "reviews.json")
+REVIEWS_CACHE = os.path.join(GLib.get_user_cache_dir(), "feren-store", "reviews.json")
 
 class Review(object):
     def __init__(self, packagename, date, username, rating, comment):
@@ -135,7 +135,7 @@ class ReviewCache(object):
                         cache = json_object.cache
                         size = json_object.size
                 except Exception as e:
-                    print("MintInstall: Cannot open reviews cache: %s" % str(e))
+                    print("Feren Store: Cannot open reviews cache: %s" % str(e))
                     cache = {}
                     size = 0
 
@@ -155,7 +155,7 @@ class ReviewCache(object):
                     pobj = JsonObject(cache, size)
                     json.dump(pobj, f, default=lambda o: o.__dict__, indent=4)
             except Exception as e:
-                print("MintInstall: Could not save review cache: %s" % str(e))
+                print("Feren Store: Could not save review cache: %s" % str(e))
 
     def _update_cache(self):
         thread = threading.Thread(target=self._update_reviews_thread)
@@ -220,13 +220,13 @@ class ReviewCache(object):
                         last_package.update_stats()
 
                     self._save_cache(new_reviews, r.headers.get("content-length"))
-                    print("MintInstall: Downloaded new reviews")
+                    print("Feren Store: Downloaded new reviews")
                     success.value = True
                 else:
-                    print("MintInstall: No new reviews")
+                    print("Feren Store: No new reviews")
             else:
-                print("MintInstall: Could not download updated reviews: %s" % r.reason)
+                print("Feren Store: Could not download updated reviews: %s" % r.reason)
                 success.value = False
         except Exception as e:
-            print("MintInstall: Problem attempting to access reviews url: %s" % str(e))
+            print("Feren Store: Problem attempting to access reviews url: %s" % str(e))
 

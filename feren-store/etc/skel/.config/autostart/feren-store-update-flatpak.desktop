@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Apply Flatpak updates
+Comment=Apply Flatpak updates
+Icon=stock_lock
+Exec=feren-store-update-flatpak
+Terminal=false
+Type=Application
+X-GNOME-Autostart-Delay=20
+X-MATE-Autostart-Delay=20
+X-KDE-autostart-after=panel

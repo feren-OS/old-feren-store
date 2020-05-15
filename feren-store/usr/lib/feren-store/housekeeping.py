@@ -17,7 +17,7 @@ MAX_AGE = 14 * (60 * 60 * 24) # days
 proc = None
 
 def run():
-    print("MintInstall: Deleting old screenshots")
+    print("Feren Store: Deleting old screenshots")
 
     thread = threading.Thread(target=_clean_screenshots_thread)
     thread.start()

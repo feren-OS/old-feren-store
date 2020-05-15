@@ -1,0 +1,21 @@
+#package----background----border-color----text-color----text-shadow
+
+google-chrome-stable----url('@prefix@chrome.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+firefox----url('@prefix@firefox.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #20123A, #20123A)----#17112F----#FFFFFF----0 1px 1px  rgba(0, 0, 0, 0)
+
+krita----url('@prefix@krita.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #51B6E4, #96DDF5)----#65A2BE----#FFFFFF----0 1px 1px #65A2BE
+
+gnome-maps----url('@prefix@maps.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+steam:i386----url('@prefix@steam.png') 22% / 17% auto no-repeat, url('@prefix@steam-bg.png') center / cover no-repeat----#000000----#ffffff----0 1px 1px rgba(0,0,0,0.5)
+
+winehq-stable----url('@prefix@wine.png') 14% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+lutris----url('@prefix@lutris.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+blender----url('@prefix@blender.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+gimp----url('@prefix@gimp.png') 22% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)
+
+vivaldi-stable----url('@prefix@vivaldi.png') 14% / 17% auto no-repeat, linear-gradient(to bottom, #d3d7cf, #eeeeec)----#babdb6----#000000----0 1px 1px  rgba(255,255,255,0.5)

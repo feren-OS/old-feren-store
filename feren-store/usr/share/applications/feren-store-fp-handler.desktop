@@ -1,11 +1,10 @@
 [Desktop Entry]
-Name=Software Manager
-Comment=Mime handler for mintinstall
-Exec=mintinstall-fp-handler %u
-Icon=mintinstall
+Name=Store
+Comment=Mime handler for feren-store
+Exec=feren-store-fp-handler %u
+Icon=softwarecenter
 Terminal=false
 Type=Application
 Encoding=UTF-8
 NoDisplay=true
 MimeType=application/vnd.flatpak.ref;application/vnd.flatpak.repo
-Name[en_GB]=feren-store-fp-handler.desktop

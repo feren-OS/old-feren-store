@@ -1,11 +1,9 @@
 [Desktop Entry]
-Name=Software Manager
+Name=Store
 Comment=Install new applications
-Exec=mintinstall
-Icon=mintinstall
+Exec=feren-store
+Icon=softwarecenter
 Terminal=false
 Type=Application
 Encoding=UTF-8
 Categories=Application;System;Settings;XFCE;X-XFCE-SettingsDialog;X-XFCE-SystemSettings;
-NotShowIn=KDE;
-Name[en_GB]=feren-store.desktop
